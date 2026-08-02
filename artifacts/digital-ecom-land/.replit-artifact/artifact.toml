@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Digital Ecom Land"
+description = "Plateforme d'affiliation e-commerce COD (Cash On Delivery) pour le marché marocain et africain. Les affiliés vendent des produits sans stock, saisissent des commandes pour leurs clients, et reçoivent leurs marges après livraison. Inclut un catalogue produits, un tableau de bord financier, une gestion des commandes, des analytics et un portefeuille de virements."
+version = "1.0.0"
+id = "artifacts/digital-ecom-land"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21343
+
+[services.development]
+run = "pnpm --filter @workspace/digital-ecom-land run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/digital-ecom-land", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/digital-ecom-land/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21343"
+BASE_PATH = "/"

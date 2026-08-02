@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Digital Ecom Land - COD Affiliation Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product catalog
+  - name: orders
+    description: Order management
+  - name: wallet
+    description: Wallet and withdrawals
+  - name: analytics
+    description: Analytics and KPIs
+  - name: profile
+    description: User profile and settings
+  - name: dashboard
+    description: Dashboard stats
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +36,544 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Products ────────────────────────────────────────────────
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products with optional search and category filter
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Product detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+
+  # ─── Orders ──────────────────────────────────────────────────
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders with optional status and search filter
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Validation error
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get a single order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Order detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  # ─── Wallet ───────────────────────────────────────────────────
+  /wallet/balance:
+    get:
+      operationId: getWalletBalance
+      tags: [wallet]
+      summary: Get wallet balance info
+      responses:
+        "200":
+          description: Wallet balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletBalance"
+
+  /wallet/withdrawals:
+    get:
+      operationId: listWithdrawals
+      tags: [wallet]
+      summary: List withdrawal history
+      responses:
+        "200":
+          description: Withdrawal list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Withdrawal"
+    post:
+      operationId: requestWithdrawal
+      tags: [wallet]
+      summary: Request a bank withdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalInput"
+      responses:
+        "201":
+          description: Withdrawal requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Withdrawal"
+        "400":
+          description: Insufficient balance or below minimum threshold
+
+  # ─── Analytics ───────────────────────────────────────────────
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Get analytics summary KPIs
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+
+  /analytics/profits-chart:
+    get:
+      operationId: getProfitsChart
+      tags: [analytics]
+      summary: Profit chart data for the last 30 days
+      responses:
+        "200":
+          description: Daily profit data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyProfit"
+
+  /analytics/top-cities:
+    get:
+      operationId: getTopCities
+      tags: [analytics]
+      summary: Top cities by revenue
+      responses:
+        "200":
+          description: Top cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityRevenue"
+
+  /analytics/top-products:
+    get:
+      operationId: getTopProducts
+      tags: [analytics]
+      summary: Top products by sales count
+      responses:
+        "200":
+          description: Top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductStat"
+
+  # ─── Dashboard ────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard financial KPI cards
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  # ─── Profile ─────────────────────────────────────────────────
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      summary: Update user profile and settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ── Products ──────────────────────────────────────────
+    Product:
+      type: object
+      required: [id, name, category, imageUrl, wholesalePrice, suggestedPrice, affiliateMargin, description, deliveryCost, inStock]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: string
+        wholesalePrice:
+          type: number
+        suggestedPrice:
+          type: number
+        affiliateMargin:
+          type: number
+        description:
+          type: string
+        deliveryCost:
+          type: number
+        inStock:
+          type: boolean
+
+    # ── Orders ─────────────────────────────────────────────
+    Order:
+      type: object
+      required: [id, productId, productName, productImage, customerFirstName, customerLastName, customerPhone, city, fullAddress, salePriceAffiliate, wholesalePrice, deliveryCost, netMargin, status, createdAt]
+      properties:
+        id:
+          type: number
+        productId:
+          type: number
+        productName:
+          type: string
+        productImage:
+          type: string
+        customerFirstName:
+          type: string
+        customerLastName:
+          type: string
+        customerPhone:
+          type: string
+        city:
+          type: string
+        fullAddress:
+          type: string
+        salePriceAffiliate:
+          type: number
+        wholesalePrice:
+          type: number
+        deliveryCost:
+          type: number
+        netMargin:
+          type: number
+        status:
+          type: string
+          enum: [NOUVELLE, CONFIRMEE, EN_COURS_LIVRAISON, LIVREE, RETOURNEE, ANNULEE]
+        deliveryNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    OrderInput:
+      type: object
+      required: [productId, customerFirstName, customerLastName, customerPhone, city, fullAddress, salePriceAffiliate]
+      properties:
+        productId:
+          type: number
+        customerFirstName:
+          type: string
+        customerLastName:
+          type: string
+        customerPhone:
+          type: string
+        city:
+          type: string
+        fullAddress:
+          type: string
+        salePriceAffiliate:
+          type: number
+        deliveryNote:
+          type: string
+
+    OrderStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [NOUVELLE, CONFIRMEE, EN_COURS_LIVRAISON, LIVREE, RETOURNEE, ANNULEE]
+
+    # ── Wallet ─────────────────────────────────────────────
+    WalletBalance:
+      type: object
+      required: [withdrawableBalance, pendingBalance, totalEarned, minimumWithdrawal]
+      properties:
+        withdrawableBalance:
+          type: number
+        pendingBalance:
+          type: number
+        totalEarned:
+          type: number
+        minimumWithdrawal:
+          type: number
+
+    Withdrawal:
+      type: object
+      required: [id, amount, status, requestedAt]
+      properties:
+        id:
+          type: number
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [EN_TRAITEMENT, PAYE]
+        bankName:
+          type: ["string", "null"]
+        ribNumber:
+          type: ["string", "null"]
+        requestedAt:
+          type: string
+        paidAt:
+          type: ["string", "null"]
+
+    WithdrawalInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+
+    # ── Analytics ─────────────────────────────────────────
+    AnalyticsSummary:
+      type: object
+      required: [deliveryRate, returnRate, totalDelivered, totalReturned, totalShipped]
+      properties:
+        deliveryRate:
+          type: number
+        returnRate:
+          type: number
+        totalDelivered:
+          type: number
+        totalReturned:
+          type: number
+        totalShipped:
+          type: number
+
+    DailyProfit:
+      type: object
+      required: [date, profit, orders]
+      properties:
+        date:
+          type: string
+        profit:
+          type: number
+        orders:
+          type: number
+
+    CityRevenue:
+      type: object
+      required: [city, revenue, orders]
+      properties:
+        city:
+          type: string
+        revenue:
+          type: number
+        orders:
+          type: number
+
+    ProductStat:
+      type: object
+      required: [productId, productName, sales, revenue]
+      properties:
+        productId:
+          type: number
+        productName:
+          type: string
+        sales:
+          type: number
+        revenue:
+          type: number
+
+    # ── Dashboard ─────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [withdrawableBalance, pendingBalance, totalEarned, totalOrders, newOrdersToday]
+      properties:
+        withdrawableBalance:
+          type: number
+        pendingBalance:
+          type: number
+        totalEarned:
+          type: number
+        totalOrders:
+          type: number
+        newOrdersToday:
+          type: number
+
+    # ── Profile ───────────────────────────────────────────
+    Profile:
+      type: object
+      required: [id, fullName, phone, email, city, brandName]
+      properties:
+        id:
+          type: number
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        city:
+          type: string
+        brandName:
+          type: string
+        bankName:
+          type: ["string", "null"]
+        ribNumber:
+          type: ["string", "null"]
+        paymentMethod:
+          type: ["string", "null"]
+
+    ProfileUpdate:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        city:
+          type: string
+        brandName:
+          type: string
+        bankName:
+          type: string
+        ribNumber:
+          type: string
+        paymentMethod:
+          type: string
