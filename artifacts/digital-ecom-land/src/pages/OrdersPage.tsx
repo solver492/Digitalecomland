@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useLocation } from "wouter"
+import { useTranslation } from "react-i18next"
 import { useListOrders, useCreateOrder, useUpdateOrderStatus, useListProducts, getListOrdersQueryKey, getGetDashboardStatsQueryKey } from "@workspace/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Card } from "@/components/ui/card"
@@ -12,32 +12,36 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { formatCurrency } from "@/lib/utils"
 import { Search, Plus, Loader2, Package, MapPin, User, FileText, Banknote } from "lucide-react"
 
-const CITIES = [
-  "Casablanca", "Rabat", "Marrakech", "Fès", "Agadir", "Tanger", "Meknès", 
-  "Oujda", "Kenitra", "Tétouan", "Safi", "Mohammedia", "Khouribga", "El Jadida", 
-  "Béni Mellal", "Nador", "Taza", "Settat", "Berrechid", "Khemisset", "Inezgane", 
-  "Ksar El Kébir", "Larache", "Guelmim", "Ouarzazate", "Errachidia", "Dakhla", 
-  "Laâyoune", "Tiznit", "Ifrane"
+// 58 Algerian wilayas
+const WILAYAS = [
+  "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra",
+  "Béchar", "Blida", "Bouira", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret",
+  "Tizi Ouzou", "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda",
+  "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem",
+  "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", "Bordj Bou Arréridj",
+  "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela",
+  "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", "Naâma", "Aïn Témouchent",
+  "Ghardaïa", "Relizane", "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal",
+  "Béni Abbès", "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Meniaa"
 ]
 
 export function OrdersPage() {
+  const { t, i18n } = useTranslation()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("ALL")
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false)
   const queryClient = useQueryClient()
-  
-  // Use wouter's location but parse native search params for ?new=productId
+  const isRtl = i18n.language === "ar"
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const newProductId = params.get('new')
     if (newProductId) {
       setIsNewOrderModalOpen(true)
-      // We don't remove it from URL so refresh keeps it, or we could replaceState
-      // In a real app we might clean up the URL here
     }
   }, [])
 
-  const { data: orders, isLoading } = useListOrders({ 
+  const { data: orders, isLoading } = useListOrders({
     search: search.length > 2 ? search : undefined,
     status: statusFilter !== "ALL" ? statusFilter : undefined
   })
@@ -46,36 +50,38 @@ export function OrdersPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-          <p className="text-muted-foreground">Manage your sales and track deliveries.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("orders.title")}</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">{t("orders.subtitle")}</p>
         </div>
-        <Button 
+        <Button
           className="gap-2 shadow-[0_0_15px_rgba(229,169,60,0.2)]"
           onClick={() => setIsNewOrderModalOpen(true)}
           data-testid="btn-add-order"
         >
-          <Plus className="size-4" /> Add New Order
+          <Plus className="size-4" /> {t("orders.addOrder")}
         </Button>
       </div>
 
-      <Card className="p-4 bg-card border-border">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
-          <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full md:w-auto overflow-x-auto">
-            <TabsList className="bg-muted">
-              <TabsTrigger value="ALL">All Orders</TabsTrigger>
-              <TabsTrigger value="NOUVELLE">New</TabsTrigger>
-              <TabsTrigger value="CONFIRMEE">Confirmed</TabsTrigger>
-              <TabsTrigger value="EN_COURS_LIVRAISON">In Transit</TabsTrigger>
-              <TabsTrigger value="LIVREE">Delivered</TabsTrigger>
-              <TabsTrigger value="RETOURNEE">Returned</TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <Card className="p-3 sm:p-4 bg-card border-border">
+        <div className="flex flex-col gap-3 mb-4">
+          {/* Status tabs — scrollable on small screens */}
+          <div className="overflow-x-auto -mx-1 px-1">
+            <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+              <TabsList className="bg-muted flex w-max min-w-full">
+                {(["ALL","NOUVELLE","CONFIRMEE","EN_COURS_LIVRAISON","LIVREE","RETOURNEE"] as const).map(s => (
+                  <TabsTrigger key={s} value={s} className="text-xs sm:text-sm whitespace-nowrap">
+                    {t(`orders.status.${s}`)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
 
-          <div className="relative w-full md:w-64 shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search customer, phone..." 
-              className="pl-9"
+          <div className="relative w-full sm:w-72 sm:ms-auto">
+            <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 size-4 text-muted-foreground`} />
+            <Input
+              placeholder={t("orders.search")}
+              className={isRtl ? "pr-9" : "pl-9"}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -88,67 +94,62 @@ export function OrdersPage() {
           </div>
         ) : !orders?.length ? (
           <div className="text-center py-12 border border-dashed rounded-lg border-border bg-muted/20">
-            <p className="text-muted-foreground">No orders found.</p>
+            <p className="text-muted-foreground">{t("orders.table.noOrders")}</p>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Order ID & Date</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Net Margin</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id} className="group">
-                  <TableCell>
-                    <div className="font-medium text-foreground">#{order.id}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {new Date(order.createdAt).toLocaleDateString('en-GB')}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{order.customerFirstName} {order.customerLastName}</div>
-                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <MapPin className="size-3" /> {order.city}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <img src={order.productImage} alt="" className="size-10 rounded-md object-cover bg-muted" />
-                      <div>
-                        <div className="font-medium line-clamp-1 max-w-[200px]">{order.productName}</div>
-                        <div className="text-xs text-muted-foreground">{formatCurrency(order.salePriceAffiliate)}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className="font-bold text-primary tracking-tight">
-                      {formatCurrency(order.netMargin)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {/* Simulated action menu for demo */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="sm">Details</Button>
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>#{t("orders.table.date")}</TableHead>
+                  <TableHead>{t("orders.table.customer")}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t("orders.table.product")}</TableHead>
+                  <TableHead>{t("orders.table.status")}</TableHead>
+                  <TableHead className="text-end">{t("orders.table.margin")}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order.id} className="group">
+                    <TableCell>
+                      <div className="font-medium text-foreground">#{order.id}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {new Date(order.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-DZ')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{order.customerFirstName} {order.customerLastName}</div>
+                      <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                        <MapPin className="size-3 shrink-0" /> {order.city}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <div className="flex items-center gap-3">
+                        <img src={order.productImage} alt="" className="size-10 rounded-md object-cover bg-muted shrink-0" />
+                        <div>
+                          <div className="font-medium line-clamp-1 max-w-[180px]">{order.productName}</div>
+                          <div className="text-xs text-muted-foreground">{formatCurrency(order.salePriceAffiliate)}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <OrderStatusBadge status={order.status} />
+                    </TableCell>
+                    <TableCell className="text-end">
+                      <span className="font-bold text-primary tracking-tight">
+                        {formatCurrency(order.netMargin)}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </Card>
 
-      <NewOrderDialog 
-        open={isNewOrderModalOpen} 
+      <NewOrderDialog
+        open={isNewOrderModalOpen}
         onOpenChange={setIsNewOrderModalOpen}
         onSuccess={() => {
           setIsNewOrderModalOpen(false)
@@ -161,32 +162,33 @@ export function OrdersPage() {
 }
 
 function OrderStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
+  const label = t(`orders.status.${status}`, { defaultValue: status })
   switch (status) {
-    case 'NOUVELLE': return <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20">New</Badge>
-    case 'CONFIRMEE': return <Badge className="bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 border-purple-500/20">Confirmed</Badge>
-    case 'EN_COURS_LIVRAISON': return <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20">In Transit</Badge>
-    case 'LIVREE': return <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20">Delivered</Badge>
-    case 'RETOURNEE': return <Badge variant="destructive" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20">Returned</Badge>
-    case 'ANNULEE': return <Badge variant="outline" className="text-muted-foreground">Cancelled</Badge>
-    default: return <Badge variant="outline">{status}</Badge>
+    case 'NOUVELLE': return <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20 text-xs">{label}</Badge>
+    case 'CONFIRMEE': return <Badge className="bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 border-purple-500/20 text-xs">{label}</Badge>
+    case 'EN_COURS_LIVRAISON': return <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20 text-xs">{label}</Badge>
+    case 'LIVREE': return <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20 text-xs">{label}</Badge>
+    case 'RETOURNEE': return <Badge variant="destructive" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20 text-xs">{label}</Badge>
+    case 'ANNULEE': return <Badge variant="outline" className="text-muted-foreground text-xs">{label}</Badge>
+    default: return <Badge variant="outline" className="text-xs">{status}</Badge>
   }
 }
 
 function NewOrderDialog({ open, onOpenChange, onSuccess }: { open: boolean, onOpenChange: (open: boolean) => void, onSuccess: () => void }) {
+  const { t } = useTranslation()
   const { data: products } = useListProducts()
   const createOrder = useCreateOrder()
-  
-  // Default values
+
   const [productId, setProductId] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [phone, setPhone] = useState("")
-  const [city, setCity] = useState(CITIES[0])
+  const [city, setCity] = useState(WILAYAS[15]) // Alger by default
   const [address, setAddress] = useState("")
   const [salePrice, setSalePrice] = useState("")
   const [note, setNote] = useState("")
 
-  // Check URL for ?new=productId
   useEffect(() => {
     if (open) {
       const params = new URLSearchParams(window.location.search)
@@ -204,121 +206,121 @@ function NewOrderDialog({ open, onOpenChange, onSuccess }: { open: boolean, onOp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!productId) return
-
     createOrder.mutate({
       data: {
         productId: parseInt(productId),
         customerFirstName: firstName,
         customerLastName: lastName,
         customerPhone: phone,
-        city: city,
+        city,
         fullAddress: address,
         salePriceAffiliate: parseInt(salePrice),
         deliveryNote: note
       }
-    }, {
-      onSuccess
-    })
+    }, { onSuccess })
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
+          <DialogTitle>{t("orders.form.title")}</DialogTitle>
           <DialogDescription>
-            Enter customer details. We'll handle the confirmation and delivery.
+            {t("orders.subtitle")}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          {/* Product */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+              <Package className="size-4 text-muted-foreground" /> {t("orders.form.selectProduct")}
+            </label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              value={productId}
+              onChange={(e) => {
+                setProductId(e.target.value)
+                const prod = products?.find(p => p.id.toString() === e.target.value)
+                if (prod) setSalePrice(prod.suggestedPrice.toString())
+              }}
+              required
+            >
+              <option value="" disabled>{t("orders.form.selectProduct")}...</option>
+              {products?.length === 0 && <option disabled>{t("orders.form.noProducts")}</option>}
+              {products?.map(p => (
+                <option key={p.id} value={p.id}>{p.name} — {formatCurrency(p.wholesalePrice)}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Name */}
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                <Package className="size-4 text-muted-foreground" /> Product
+                <User className="size-4 text-muted-foreground" /> {t("orders.form.customerFirstName")}
               </label>
-              <select 
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                value={productId}
-                onChange={(e) => {
-                  setProductId(e.target.value)
-                  const prod = products?.find(p => p.id.toString() === e.target.value)
-                  if (prod) setSalePrice(prod.suggestedPrice.toString())
-                }}
-                required
-              >
-                <option value="" disabled>Select a product...</option>
-                {products?.map(p => (
-                  <option key={p.id} value={p.id}>{p.name} - {formatCurrency(p.wholesalePrice)} WP</option>
-                ))}
-              </select>
+              <Input required placeholder="Ahmed" value={firstName} onChange={e => setFirstName(e.target.value)} />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  <User className="size-4 text-muted-foreground" /> First Name
-                </label>
-                <Input required placeholder="Ahmed" value={firstName} onChange={e => setFirstName(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Last Name</label>
-                <Input required placeholder="Mansouri" value={lastName} onChange={e => setLastName(e.target.value)} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  Phone Number
-                </label>
-                <Input required placeholder="06 XX XX XX XX" value={phone} onChange={e => setPhone(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  <MapPin className="size-4 text-muted-foreground" /> City
-                </label>
-                <select 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  required
-                >
-                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Full Address</label>
-              <Input required placeholder="123 Street Name, Neighborhood" value={address} onChange={e => setAddress(e.target.value)} />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                <Banknote className="size-4 text-muted-foreground" /> Selling Price (DZD)
-              </label>
-              <Input required type="number" min={selectedProduct?.wholesalePrice || 0} placeholder="Price charged to customer" value={salePrice} onChange={e => setSalePrice(e.target.value)} />
-              {selectedProduct && salePrice && (
-                <p className="text-xs text-muted-foreground">
-                  Est. Margin: <span className="text-primary font-bold">{formatCurrency(parseInt(salePrice) - selectedProduct.wholesalePrice - selectedProduct.deliveryCost)}</span>
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2 text-foreground">
-                <FileText className="size-4 text-muted-foreground" /> Delivery Note (Optional)
-              </label>
-              <Input placeholder="Call before delivery..." value={note} onChange={e => setNote(e.target.value)} />
+              <label className="text-sm font-medium text-foreground">{t("orders.form.customerLastName")}</label>
+              <Input required placeholder="Mansouri" value={lastName} onChange={e => setLastName(e.target.value)} />
             </div>
           </div>
 
+          {/* Phone + City */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">{t("orders.form.customerPhone")}</label>
+              <Input required placeholder="05 XX XX XX XX" value={phone} onChange={e => setPhone(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+                <MapPin className="size-4 text-muted-foreground" /> {t("orders.form.city")}
+              </label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={city}
+                onChange={e => setCity(e.target.value)}
+                required
+              >
+                {WILAYAS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">{t("orders.form.fullAddress")}</label>
+            <Input required placeholder="Rue Larbi Ben M'hidi, Bab El Oued" value={address} onChange={e => setAddress(e.target.value)} />
+          </div>
+
+          {/* Price */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+              <Banknote className="size-4 text-muted-foreground" /> {t("orders.form.salePrice")}
+            </label>
+            <Input required type="number" min={selectedProduct?.wholesalePrice || 0} placeholder="0" value={salePrice} onChange={e => setSalePrice(e.target.value)} />
+            {selectedProduct && salePrice && (
+              <p className="text-xs text-muted-foreground">
+                Marge estimée: <span className="text-primary font-bold">{formatCurrency(parseInt(salePrice) - Number(selectedProduct.wholesalePrice) - Number(selectedProduct.deliveryCost))}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Note */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+              <FileText className="size-4 text-muted-foreground" /> {t("orders.form.deliveryNote")}
+            </label>
+            <Input placeholder="Appeler avant livraison..." value={note} onChange={e => setNote(e.target.value)} />
+          </div>
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t("orders.form.cancel")}</Button>
             <Button type="submit" disabled={createOrder.isPending} className="gap-2">
               {createOrder.isPending && <Loader2 className="size-4 animate-spin" />}
-              Submit Order
+              {t("orders.form.submit")}
             </Button>
           </DialogFooter>
         </form>

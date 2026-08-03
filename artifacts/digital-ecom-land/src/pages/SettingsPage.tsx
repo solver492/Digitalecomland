@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import { useGetProfile, useUpdateProfile, getGetProfileQueryKey } from "@workspace/api-client-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -7,16 +7,16 @@ import { Input } from "@/components/ui/input"
 import { Loader2, User, Building2, Save } from "lucide-react"
 
 export function SettingsPage() {
+  const { t } = useTranslation()
   const { data: profile, isLoading } = useGetProfile()
   const updateProfile = useUpdateProfile()
   const queryClient = useQueryClient()
 
-  // Standard uncontrolled form setup relying on the backend for init
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your account details and payout preferences.</p>
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("settings.title")}</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">{t("settings.subtitle")}</p>
       </div>
 
       {isLoading ? (
@@ -25,15 +25,16 @@ export function SettingsPage() {
         </div>
       ) : profile ? (
         <div className="space-y-6">
+          {/* Personal Info */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="size-5 text-primary" /> Personal Information
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <User className="size-5 text-primary" /> {t("settings.personalInfo")}
               </CardTitle>
-              <CardDescription>Update your personal and brand details.</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">{t("settings.personalInfoDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <form 
+              <form
                 id="personal-form"
                 className="space-y-4"
                 onSubmit={(e) => {
@@ -56,45 +57,46 @@ export function SettingsPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Full Name</label>
+                    <label className="text-sm font-medium">{t("settings.fullName")}</label>
                     <Input name="fullName" defaultValue={profile.fullName} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Brand / Store Name</label>
+                    <label className="text-sm font-medium">{t("settings.brandName")}</label>
                     <Input name="brandName" defaultValue={profile.brandName} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Email Address</label>
+                    <label className="text-sm font-medium">{t("settings.email")}</label>
                     <Input type="email" name="email" defaultValue={profile.email} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone Number</label>
-                    <Input name="phone" defaultValue={profile.phone} required />
+                    <label className="text-sm font-medium">{t("settings.phone")}</label>
+                    <Input name="phone" defaultValue={profile.phone} required placeholder="05 XX XX XX XX" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">City</label>
-                    <Input name="city" defaultValue={profile.city} required />
+                    <label className="text-sm font-medium">{t("settings.city")}</label>
+                    <Input name="city" defaultValue={profile.city} required placeholder="Alger, Oran, Constantine..." />
                   </div>
                 </div>
               </form>
             </CardContent>
-            <CardFooter className="bg-muted/20 border-t border-border mt-6 p-6">
+            <CardFooter className="bg-muted/20 border-t border-border mt-4 sm:mt-6 p-4 sm:p-6">
               <Button type="submit" form="personal-form" disabled={updateProfile.isPending} className="gap-2">
                 {updateProfile.isPending && <Loader2 className="size-4 animate-spin" />}
-                <Save className="size-4" /> Save Personal Details
+                <Save className="size-4" /> {t("settings.saveChanges")}
               </Button>
             </CardFooter>
           </Card>
 
+          {/* Payment Info */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="size-5 text-primary" /> Payout Method (Bank)
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Building2 className="size-5 text-primary" /> {t("settings.paymentInfo")}
               </CardTitle>
-              <CardDescription>Where we send your margins.</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">{t("settings.paymentInfoDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <form 
+              <form
                 id="bank-form"
                 className="space-y-4"
                 onSubmit={(e) => {
@@ -114,20 +116,20 @@ export function SettingsPage() {
               >
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Bank Name</label>
-                    <Input name="bankName" defaultValue={profile.bankName || ""} placeholder="e.g. CIH Bank, Attijariwafa..." required />
+                    <label className="text-sm font-medium">{t("settings.bankName")}</label>
+                    <Input name="bankName" defaultValue={profile.bankName || ""} placeholder="ex. BNA, CPA, BEA, Baridimob..." required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">RIB (Relevé d'Identité Bancaire)</label>
-                    <Input name="ribNumber" defaultValue={profile.ribNumber || ""} placeholder="24-digit RIB number" className="font-mono" required />
+                    <label className="text-sm font-medium">{t("settings.ribNumber")}</label>
+                    <Input name="ribNumber" defaultValue={profile.ribNumber || ""} placeholder="20-digit RIB number" className="font-mono" required />
                   </div>
                 </div>
               </form>
             </CardContent>
-            <CardFooter className="bg-muted/20 border-t border-border mt-6 p-6">
+            <CardFooter className="bg-muted/20 border-t border-border mt-4 sm:mt-6 p-4 sm:p-6">
               <Button type="submit" form="bank-form" disabled={updateProfile.isPending} className="gap-2">
                 {updateProfile.isPending && <Loader2 className="size-4 animate-spin" />}
-                <Save className="size-4" /> Save Bank Details
+                <Save className="size-4" /> {t("settings.saveChanges")}
               </Button>
             </CardFooter>
           </Card>
