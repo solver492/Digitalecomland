@@ -1,0 +1,179 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                    GUIDE VISUEL - hPANEL NODE.JS                       ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+📍 ÉTAPE 1 : Accéder à Node.js dans hPanel
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ hPanel - Dashboard                                      [x]│
+├────────────────────────────────────────────────────────────┤
+│  🏠 Dashboard                                              │
+│  📂 File Manager                                           │
+│  📧 Email                                                  │
+│  📊 Databases                                              │
+│  ⚙️  Advanced  ◄── CLIQUEZ ICI                            │
+│     ├─ Node.js  ◄── PUIS ICI                              │
+│     ├─ Cron Jobs                                          │
+│     ├─ SSH Access                                         │
+│     └─ ...                                                │
+└────────────────────────────────────────────────────────────┘
+
+
+📍 ÉTAPE 2 : Créer ou Modifier l'Application
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ Node.js Applications                                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  [+ Create Application]  ◄── CLIQUEZ ICI SI NOUVELLE APP  │
+│                                                            │
+│  OU si application existe déjà:                           │
+│                                                            │
+│  ┌─────────────────────────────────────────────┐         │
+│  │ 📦 Application Name                          │         │
+│  │ Status: ⚫ Stopped                           │         │
+│  │ [⋮] ◄── CLIQUEZ ICI > Edit                 │         │
+│  └─────────────────────────────────────────────┘         │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+
+
+📍 ÉTAPE 3 : Configuration de l'Application
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ Create/Edit Node.js Application                            │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  Application root: *                                       │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ /home/u696346042/domains/digitalsolverland.space/api│  │
+│  └────────────────────────────────────────────────────┘  │
+│  ⬆️ COPIEZ EXACTEMENT CE CHEMIN                           │
+│                                                            │
+│  Application URL: *                                        │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ digitalsolverland.space/api                         │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                            │
+│  Application startup file: *                               │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ index.mjs  ◄── PAS dist/index.mjs, JUSTE index.mjs │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                            │
+│  Node.js version:                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ ▼ 20.x  ◄── Choisissez la version 20             │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                            │
+│  Package manager:                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ ▼ npm  ◄── Sélectionnez npm                        │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+
+                    [Scroll Down ⬇️]
+
+
+📍 ÉTAPE 4 : Variables d'Environnement
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ Environment Variables                                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  [+ Add Environment Variable] ◄── CLIQUEZ 3 FOIS          │
+│                                                            │
+│  Variable 1:                                               │
+│  ┌─────────────────┬──────────────────────────────────┐  │
+│  │ Name: PORT      │ Value: 3001                      │  │
+│  └─────────────────┴──────────────────────────────────┘  │
+│                                                            │
+│  Variable 2:                                               │
+│  ┌─────────────────┬──────────────────────────────────┐  │
+│  │ Name: NODE_ENV  │ Value: production                │  │
+│  └─────────────────┴──────────────────────────────────┘  │
+│                                                            │
+│  Variable 3:                                               │
+│  ┌──────────────────┬─────────────────────────────────┐  │
+│  │ Name:            │ Value:                          │  │
+│  │ DATABASE_URL     │ postgresql://digitalecomland_..│  │
+│  │                  │ user:DigitalEcom2024!Secure@...│  │
+│  └──────────────────┴─────────────────────────────────┘  │
+│                                                            │
+│                            [Create]  ◄── CLIQUEZ ICI      │
+└────────────────────────────────────────────────────────────┘
+
+
+📍 ÉTAPE 5 : Démarrer l'Application
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────────────────────────────────────────────┐
+│ Node.js Applications                                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌─────────────────────────────────────────────┐         │
+│  │ 📦 digitalecomland-api                       │         │
+│  │ Status: ⚫ Stopped                           │         │
+│  │                                              │         │
+│  │ [▶️  Start] ◄── CLIQUEZ ICI POUR DÉMARRER  │         │
+│  │ [⚙️  Settings] [📊 Logs]                    │         │
+│  └─────────────────────────────────────────────┘         │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+
+Attendez 30 secondes...
+
+┌────────────────────────────────────────────────────────────┐
+│  ┌─────────────────────────────────────────────┐         │
+│  │ 📦 digitalecomland-api                       │         │
+│  │ Status: 🟢 Running  ◄── SUCCÈS !            │         │
+│  │                                              │         │
+│  │ [⏸️  Stop] [🔄 Restart] [📊 View Logs]     │         │
+│  └─────────────────────────────────────────────┘         │
+└────────────────────────────────────────────────────────────┘
+
+
+📍 ÉTAPE 6 : Vérification
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ouvrez votre navigateur et testez :
+
+✅ Frontend : http://digitalsolverland.space
+   → Vous devez voir votre application React
+
+✅ API : http://digitalsolverland.space/api/health
+   → Vous devez voir une réponse JSON
+
+
+╔════════════════════════════════════════════════════════════╗
+║                         ✅ TERMINÉ !                         ║
+║                                                            ║
+║  Votre application est maintenant en ligne !              ║
+║                                                            ║
+║  Frontend : http://digitalsolverland.space                ║
+║  API      : http://digitalsolverland.space/api            ║
+╚════════════════════════════════════════════════════════════╝
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 DÉPANNAGE RAPIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ Erreur "Cannot find module" ?
+   → Cliquez sur [Reinstall Dependencies] puis [Restart]
+
+❌ Erreur "Port already in use" ?
+   → Changez PORT à 3002 dans les variables d'environnement
+
+❌ L'application ne démarre pas ?
+   → Cliquez sur [📊 Logs] pour voir les erreurs
+   → Vérifiez que tous les chemins sont corrects
+
+❌ "Command 'pnpm' not found" ?
+   → Assurez-vous d'avoir sélectionné "npm" comme package manager
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

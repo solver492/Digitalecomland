@@ -5,8 +5,8 @@ import { ArrowRight, CheckCircle2, TrendingUp, Package, Truck, Wallet, Globe } f
 import * as React from "react"
 
 const LANGUAGES = [
-  { code: "ar", label: "العربية", flag: "🇩🇿" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "ar", label: "العربية", flag: "🇲🇦" },
+  { code: "fr", label: "Français", flag: "🇲🇦" },
   { code: "en", label: "English", flag: "🌐" },
 ]
 

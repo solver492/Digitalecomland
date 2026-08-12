@@ -12,17 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { formatCurrency } from "@/lib/utils"
 import { Search, Plus, Loader2, Package, MapPin, User, FileText, Banknote } from "lucide-react"
 
-// 58 Algerian wilayas
+// Villes marocaines (principales)
 const WILAYAS = [
-  "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra",
-  "Béchar", "Blida", "Bouira", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret",
-  "Tizi Ouzou", "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda",
-  "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem",
-  "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", "Bordj Bou Arréridj",
-  "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela",
-  "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", "Naâma", "Aïn Témouchent",
-  "Ghardaïa", "Relizane", "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal",
-  "Béni Abbès", "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Meniaa"
+  "الدار البيضاء", "الرباط", "فاس", "مراكش", "طنجة", "أكادير", "مكناس",
+  "وجدة", "القنيطرة", "تطوان", "سلا", "بنسليمان", "بركان", "الجديدة",
+  "خريبكة", "سطات", "بني ملال", "خنيفرة", "الحسيمة", "تازة",
+  "واد زم", "قلعة السراغنة", "تارودانت", "العيون", "الداخلة",
+  "الراشيدية", "إفران", "ميدلت", "ورزازات", "الصويرة", "آسفي",
+  "قصبة تادلة", "الفقيه بن صالح", "سيدي قاسم", "سيدي سليمان",
 ]
 
 export function OrdersPage() {

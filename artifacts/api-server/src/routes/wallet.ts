@@ -1,46 +1,35 @@
 import { Router } from "express";
-import { db, ordersTable, withdrawalsTable } from "@workspace/db";
+import { store } from "../lib/mem-store";
 import { RequestWithdrawalBody } from "@workspace/api-zod";
 
 const router = Router();
+const MINIMUM_WITHDRAWAL = 1000;
 
-const MINIMUM_WITHDRAWAL = 100;
-
-async function computeWithdrawableBalance(): Promise<{
-  withdrawable: number;
-  pending: number;
-  totalEarned: number;
-}> {
-  const orders = await db.select().from(ordersTable);
-
+function computeBalance() {
   let withdrawable = 0;
   let pending = 0;
   let totalEarned = 0;
 
-  for (const o of orders) {
-    const margin = Number(o.netMargin);
+  for (const o of store.orders) {
     if (o.status === "LIVREE") {
-      withdrawable += margin;
-      totalEarned += margin;
+      withdrawable += o.netMargin;
+      totalEarned += o.netMargin;
     } else if (["CONFIRMEE", "EN_COURS_LIVRAISON"].includes(o.status)) {
-      pending += margin;
+      pending += o.netMargin;
     }
   }
 
-  // Subtract paid/processing withdrawals
-  const withdrawals = await db.select().from(withdrawalsTable);
-  for (const w of withdrawals) {
+  for (const w of store.withdrawals) {
     if (w.status === "PAYE" || w.status === "EN_TRAITEMENT") {
-      withdrawable -= Number(w.amount);
+      withdrawable -= w.amount;
     }
   }
 
   return { withdrawable: Math.max(0, withdrawable), pending, totalEarned };
 }
 
-router.get("/wallet/balance", async (req, res): Promise<void> => {
-  const { withdrawable, pending, totalEarned } = await computeWithdrawableBalance();
-
+router.get("/wallet/balance", (req, res): void => {
+  const { withdrawable, pending, totalEarned } = computeBalance();
   res.json({
     withdrawableBalance: withdrawable,
     pendingBalance: pending,
@@ -49,59 +38,44 @@ router.get("/wallet/balance", async (req, res): Promise<void> => {
   });
 });
 
-router.get("/wallet/withdrawals", async (req, res): Promise<void> => {
-  const rows = await db
-    .select()
-    .from(withdrawalsTable)
-    .orderBy(withdrawalsTable.requestedAt);
-
-  res.json(
-    rows.map((w) => ({
-      ...w,
-      amount: Number(w.amount),
-      requestedAt: w.requestedAt.toISOString(),
-      paidAt: w.paidAt ? w.paidAt.toISOString() : null,
-    }))
+router.get("/wallet/withdrawals", (req, res): void => {
+  const sorted = [...store.withdrawals].sort(
+    (a, b) => new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime()
   );
+  res.json(sorted);
 });
 
-router.post("/wallet/withdrawals", async (req, res): Promise<void> => {
+router.post("/wallet/withdrawals", (req, res): void => {
   const parsed = RequestWithdrawalBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  const { withdrawable } = await computeWithdrawableBalance();
+  const { withdrawable } = computeBalance();
 
   if (withdrawable < MINIMUM_WITHDRAWAL) {
-    res
-      .status(400)
-      .json({ error: `Solde insuffisant. Minimum: ${MINIMUM_WITHDRAWAL} DZD` });
+    res.status(400).json({ error: `Solde insuffisant. Minimum: ${MINIMUM_WITHDRAWAL} DZD` });
     return;
   }
 
   if (parsed.data.amount > withdrawable) {
-    res
-      .status(400)
-      .json({ error: `Montant supérieur au solde disponible (${withdrawable} DZD)` });
+    res.status(400).json({ error: `Montant supérieur au solde disponible (${withdrawable} DZD)` });
     return;
   }
 
-  const [created] = await db
-    .insert(withdrawalsTable)
-    .values({
-      amount: String(parsed.data.amount),
-      status: "EN_TRAITEMENT",
-    })
-    .returning();
-
-  res.status(201).json({
-    ...created,
-    amount: Number(created.amount),
-    requestedAt: created.requestedAt.toISOString(),
+  const withdrawal = {
+    id: store._nextId.withdrawals++,
+    amount: parsed.data.amount,
+    status: "EN_TRAITEMENT",
+    bankName: parsed.data.bankName ?? null,
+    ribNumber: parsed.data.ribNumber ?? null,
+    requestedAt: new Date().toISOString(),
     paidAt: null,
-  });
+  };
+
+  store.withdrawals.push(withdrawal);
+  res.status(201).json(withdrawal);
 });
 
 export default router;

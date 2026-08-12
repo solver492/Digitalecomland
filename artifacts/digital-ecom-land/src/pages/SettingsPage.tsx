@@ -74,7 +74,7 @@ export function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">{t("settings.city")}</label>
-                    <Input name="city" defaultValue={profile.city} required placeholder="Alger, Oran, Constantine..." />
+                    <Input name="city" defaultValue={profile.city} required placeholder="Casablanca, Rabat, Fès, Marrakech..." />
                   </div>
                 </div>
               </form>
@@ -117,7 +117,7 @@ export function SettingsPage() {
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">{t("settings.bankName")}</label>
-                    <Input name="bankName" defaultValue={profile.bankName || ""} placeholder="ex. BNA, CPA, BEA, Baridimob..." required />
+                    <Input name="bankName" defaultValue={profile.bankName || ""} placeholder="ex. CIH Bank, Banque Populaire, Attijariwafa..." required />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">{t("settings.ribNumber")}</label>

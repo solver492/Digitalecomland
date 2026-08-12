@@ -1,35 +1,34 @@
 import { Router } from "express";
-import { db, ordersTable, withdrawalsTable } from "@workspace/db";
+import { store } from "../lib/mem-store";
 
 const router = Router();
 
-router.get("/dashboard/stats", async (req, res): Promise<void> => {
-  const orders = await db.select().from(ordersTable);
-  const withdrawals = await db.select().from(withdrawalsTable);
+router.get("/dashboard/stats", (req, res): void => {
+  const orders = store.orders;
+  const withdrawals = store.withdrawals;
 
   let withdrawable = 0;
   let pending = 0;
   let totalEarned = 0;
 
   for (const o of orders) {
-    const margin = Number(o.netMargin);
     if (o.status === "LIVREE") {
-      withdrawable += margin;
-      totalEarned += margin;
+      withdrawable += o.netMargin;
+      totalEarned += o.netMargin;
     } else if (["CONFIRMEE", "EN_COURS_LIVRAISON"].includes(o.status)) {
-      pending += margin;
+      pending += o.netMargin;
     }
   }
 
   for (const w of withdrawals) {
     if (w.status === "PAYE" || w.status === "EN_TRAITEMENT") {
-      withdrawable -= Number(w.amount);
+      withdrawable -= w.amount;
     }
   }
 
   const today = new Date().toISOString().split("T")[0];
   const newOrdersToday = orders.filter(
-    (o) => o.createdAt.toISOString().split("T")[0] === today
+    (o) => o.createdAt.split("T")[0] === today
   ).length;
 
   res.json({

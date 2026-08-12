@@ -1,23 +1,14 @@
-modules = ["nodejs-20", "web", "bash", "postgresql-16"]
-
-[deployment]
-router = "application"
-deploymentTarget = "autoscale"
-
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
-
-[workflows]
-runButton = "Project"
-
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
-
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
-
-[nix]
-channel = "stable-25_05"
+# Ce fichier est spécifique à la plateforme Replit et n'est pas utilisé
+# dans un environnement de développement local.
+#
+# Pour démarrer l'application localement, voir les commandes ci-dessous :
+#
+#   Frontend  : pnpm --filter @workspace/digital-ecom-land run dev
+#   Backend   : pnpm --filter @workspace/api-server run dev
+#
+# Variables d'environnement requises :
+#   PORT          = port du serveur (défaut : 5173 pour le front, 8080 pour l'API)
+#   BASE_PATH     = chemin de base du frontend (défaut : /)
+#   DATABASE_URL  = URL de connexion PostgreSQL
+#
+# Voir .env.example pour un exemple complet.

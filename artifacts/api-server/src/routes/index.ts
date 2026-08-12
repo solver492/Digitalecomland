@@ -6,6 +6,7 @@ import walletRouter from "./wallet";
 import analyticsRouter from "./analytics";
 import dashboardRouter from "./dashboard";
 import profileRouter from "./profile";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(walletRouter);
 router.use(analyticsRouter);
 router.use(dashboardRouter);
 router.use(profileRouter);
+router.use(adminRouter);
 
 export default router;

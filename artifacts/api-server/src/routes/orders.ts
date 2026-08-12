@@ -1,39 +1,22 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
-import { db, ordersTable, productsTable } from "@workspace/db";
+import { store } from "../lib/mem-store";
 import {
   ListOrdersQueryParams,
-  GetOrderParams,
-  UpdateOrderStatusParams,
   CreateOrderBody,
   UpdateOrderStatusBody,
 } from "@workspace/api-zod";
 
 const router = Router();
 
-function serializeOrder(o: typeof ordersTable.$inferSelect) {
-  return {
-    ...o,
-    salePriceAffiliate: Number(o.salePriceAffiliate),
-    wholesalePrice: Number(o.wholesalePrice),
-    deliveryCost: Number(o.deliveryCost),
-    netMargin: Number(o.netMargin),
-    createdAt: o.createdAt.toISOString(),
-  };
-}
-
-router.get("/orders", async (req, res): Promise<void> => {
+router.get("/orders", (req, res): void => {
   const queryParsed = ListOrdersQueryParams.safeParse(req.query);
   const { status, search } = queryParsed.success ? queryParsed.data : {};
 
-  let rows = await db
-    .select()
-    .from(ordersTable)
-    .orderBy(ordersTable.createdAt);
+  let rows = [...store.orders].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
-  if (status) {
-    rows = rows.filter((o) => o.status === status);
-  }
+  if (status) rows = rows.filter((o) => o.status === status);
   if (search) {
     const s = search.toLowerCase();
     rows = rows.filter(
@@ -45,10 +28,10 @@ router.get("/orders", async (req, res): Promise<void> => {
     );
   }
 
-  res.json(rows.map(serializeOrder));
+  res.json(rows);
 });
 
-router.post("/orders", async (req, res): Promise<void> => {
+router.post("/orders", (req, res): void => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -56,78 +39,59 @@ router.post("/orders", async (req, res): Promise<void> => {
   }
 
   const {
+    productId, customerFirstName, customerLastName, customerPhone,
+    city, fullAddress, salePriceAffiliate, deliveryNote,
+  } = parsed.data;
+
+  const product = store.products.find((p) => p.id === productId);
+  if (!product) {
+    res.status(400).json({ error: "Product not found" });
+    return;
+  }
+
+  const netMargin = salePriceAffiliate - product.wholesalePrice - product.deliveryCost;
+
+  const order = {
+    id: store._nextId.orders++,
     productId,
+    productName: product.name,
+    productImage: product.imageUrl,
     customerFirstName,
     customerLastName,
     customerPhone,
     city,
     fullAddress,
     salePriceAffiliate,
-    deliveryNote,
-  } = parsed.data;
+    wholesalePrice: product.wholesalePrice,
+    deliveryCost: product.deliveryCost,
+    netMargin,
+    status: "NOUVELLE",
+    deliveryNote: deliveryNote ?? null,
+    createdAt: new Date().toISOString(),
+  };
 
-  // Look up product
-  const [product] = await db
-    .select()
-    .from(productsTable)
-    .where(eq(productsTable.id, productId));
-
-  if (!product) {
-    res.status(400).json({ error: "Product not found" });
-    return;
-  }
-
-  const wholesale = Number(product.wholesalePrice);
-  const delivery = Number(product.deliveryCost);
-  const netMargin = salePriceAffiliate - wholesale - delivery;
-
-  const [created] = await db
-    .insert(ordersTable)
-    .values({
-      productId,
-      productName: product.name,
-      productImage: product.imageUrl,
-      customerFirstName,
-      customerLastName,
-      customerPhone,
-      city,
-      fullAddress,
-      salePriceAffiliate: String(salePriceAffiliate),
-      wholesalePrice: product.wholesalePrice,
-      deliveryCost: product.deliveryCost,
-      netMargin: String(netMargin),
-      status: "NOUVELLE",
-      deliveryNote: deliveryNote ?? null,
-    })
-    .returning();
-
-  res.status(201).json(serializeOrder(created));
+  store.orders.push(order);
+  res.status(201).json(order);
 });
 
-router.get("/orders/:id", async (req, res): Promise<void> => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(raw, 10);
+router.get("/orders/:id", (req, res): void => {
+  const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid id" });
     return;
   }
 
-  const [order] = await db
-    .select()
-    .from(ordersTable)
-    .where(eq(ordersTable.id, id));
-
+  const order = store.orders.find((o) => o.id === id);
   if (!order) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
 
-  res.json(serializeOrder(order));
+  res.json(order);
 });
 
-router.patch("/orders/:id", async (req, res): Promise<void> => {
-  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(raw, 10);
+router.patch("/orders/:id", (req, res): void => {
+  const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid id" });
     return;
@@ -139,18 +103,14 @@ router.patch("/orders/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const [updated] = await db
-    .update(ordersTable)
-    .set({ status: parsed.data.status })
-    .where(eq(ordersTable.id, id))
-    .returning();
-
-  if (!updated) {
+  const idx = store.orders.findIndex((o) => o.id === id);
+  if (idx === -1) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
 
-  res.json(serializeOrder(updated));
+  store.orders[idx] = { ...store.orders[idx], status: parsed.data.status };
+  res.json(store.orders[idx]);
 });
 
 export default router;

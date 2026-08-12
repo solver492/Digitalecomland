@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { db, ordersTable } from "@workspace/db";
+import { store } from "../lib/mem-store";
 
 const router = Router();
 
-router.get("/analytics/summary", async (req, res): Promise<void> => {
-  const orders = await db.select().from(ordersTable);
+router.get("/analytics/summary", (req, res): void => {
+  const orders = store.orders;
 
   const totalDelivered = orders.filter((o) => o.status === "LIVREE").length;
   const totalReturned = orders.filter((o) => o.status === "RETOURNEE").length;
@@ -28,10 +28,8 @@ router.get("/analytics/summary", async (req, res): Promise<void> => {
   });
 });
 
-router.get("/analytics/profits-chart", async (req, res): Promise<void> => {
-  const orders = await db.select().from(ordersTable);
-
-  // Build daily aggregates for the last 30 days
+router.get("/analytics/profits-chart", (req, res): void => {
+  const orders = store.orders;
   const now = new Date();
   const result: Record<string, { profit: number; orders: number }> = {};
 
@@ -44,9 +42,9 @@ router.get("/analytics/profits-chart", async (req, res): Promise<void> => {
 
   for (const o of orders) {
     if (o.status === "LIVREE") {
-      const key = o.createdAt.toISOString().split("T")[0];
+      const key = o.createdAt.split("T")[0];
       if (result[key] !== undefined) {
-        result[key].profit += Number(o.netMargin);
+        result[key].profit += o.netMargin;
         result[key].orders += 1;
       }
     }
@@ -61,15 +59,13 @@ router.get("/analytics/profits-chart", async (req, res): Promise<void> => {
   res.json(chart);
 });
 
-router.get("/analytics/top-cities", async (req, res): Promise<void> => {
-  const orders = await db.select().from(ordersTable);
-
+router.get("/analytics/top-cities", (req, res): void => {
   const cityMap: Record<string, { revenue: number; orders: number }> = {};
 
-  for (const o of orders) {
+  for (const o of store.orders) {
     if (o.status === "LIVREE") {
       if (!cityMap[o.city]) cityMap[o.city] = { revenue: 0, orders: 0 };
-      cityMap[o.city].revenue += Number(o.netMargin);
+      cityMap[o.city].revenue += o.netMargin;
       cityMap[o.city].orders += 1;
     }
   }
@@ -86,15 +82,13 @@ router.get("/analytics/top-cities", async (req, res): Promise<void> => {
   res.json(result);
 });
 
-router.get("/analytics/top-products", async (req, res): Promise<void> => {
-  const orders = await db.select().from(ordersTable);
-
+router.get("/analytics/top-products", (req, res): void => {
   const productMap: Record<
     number,
     { productName: string; sales: number; revenue: number }
   > = {};
 
-  for (const o of orders) {
+  for (const o of store.orders) {
     if (o.status === "LIVREE") {
       if (!productMap[o.productId]) {
         productMap[o.productId] = {
@@ -104,7 +98,7 @@ router.get("/analytics/top-products", async (req, res): Promise<void> => {
         };
       }
       productMap[o.productId].sales += 1;
-      productMap[o.productId].revenue += Number(o.netMargin);
+      productMap[o.productId].revenue += o.netMargin;
     }
   }
 

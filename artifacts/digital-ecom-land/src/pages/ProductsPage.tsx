@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { useLocation } from "wouter"
+import { useLocation, Link } from "wouter"
 import { useTranslation } from "react-i18next"
 import { useListProducts } from "@workspace/api-client-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -213,15 +213,17 @@ export function ProductsPage() {
                     </Badge>
                   </div>
                   <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                    <Link href={`/dashboard/products/${product.id}`} className="block w-full h-full">
                     <img
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           "https://via.placeholder.com/400x300?text=No+Image"
                       }}
                     />
+                    </Link>
                     {!product.inStock && (
                       <div className="absolute inset-0 bg-background/80 flex items-center justify-center backdrop-blur-sm">
                         <Badge variant="destructive">{t("catalog.outOfStock")}</Badge>
@@ -229,7 +231,11 @@ export function ProductsPage() {
                     )}
                   </div>
                   <CardHeader className="p-4 pb-0">
-                    <CardTitle className="text-base truncate">{product.name}</CardTitle>
+                    <CardTitle className="text-base truncate">
+                      <Link href={`/dashboard/products/${product.id}`} className="hover:text-primary transition-colors">
+                        {product.name}
+                      </Link>
+                    </CardTitle>
                     <CardDescription className="line-clamp-2 mt-1 text-xs h-8">
                       {product.description}
                     </CardDescription>
@@ -335,11 +341,12 @@ export function ProductsPage() {
               key={product.id}
               className="overflow-hidden flex flex-col hover:border-primary/50 transition-colors group"
             >
+              <Link href={`/dashboard/products/${product.id}`} className="block">
               <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       "https://via.placeholder.com/400x300?text=No+Image"
@@ -354,9 +361,14 @@ export function ProductsPage() {
                   {product.category}
                 </Badge>
               </div>
+              </Link>
 
               <CardHeader className="p-5 pb-0">
-                <CardTitle className="text-lg truncate">{product.name}</CardTitle>
+                <CardTitle className="text-lg truncate">
+                  <Link href={`/dashboard/products/${product.id}`} className="hover:text-primary transition-colors">
+                    {product.name}
+                  </Link>
+                </CardTitle>
                 <CardDescription className="line-clamp-2 mt-2 h-10 text-sm">
                   {product.description}
                 </CardDescription>

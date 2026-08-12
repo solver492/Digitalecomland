@@ -19,7 +19,7 @@ export function WalletPage() {
   const queryClient = useQueryClient()
 
   const canWithdraw = balance ? balance.withdrawableBalance >= balance.minimumWithdrawal : false
-  const locale = i18n.language === 'ar' ? 'ar-DZ' : 'fr-DZ'
+  const locale = i18n.language === 'ar' ? 'ar-MA' : 'fr-MA'
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -215,7 +215,7 @@ function WithdrawDialog({ open, onOpenChange, maxAmount, onSuccess }: { open: bo
                 className="text-lg font-bold"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Min: 100 DA</span>
+                <span>Min: 100 DH</span>
                 <span>Max: {formatCurrency(maxAmount)}</span>
               </div>
             </div>

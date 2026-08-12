@@ -1,0 +1,22 @@
+# Fichiers à exclure du déploiement
+node_modules/
+.git/
+.github/
+*.log
+*.lock
+.env
+.DS_Store
+.vscode/
+.idea/
+coverage/
+.cache/
+tmp/
+temp/
+*.tmp
+*.swp
+.agents/
+.config/npm/
+.replit
+.replitignore
+artifacts/*/node_modules/
+artifacts/*/.tsbuildinfo

@@ -1,75 +1,33 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
-import { db, profileTable } from "@workspace/db";
+import { store } from "../lib/mem-store";
 import { UpdateProfileBody } from "@workspace/api-zod";
 
 const router = Router();
 
-router.get("/profile", async (req, res): Promise<void> => {
-  const rows = await db.select().from(profileTable);
-
-  if (rows.length === 0) {
-    res.json({
-      id: 1,
-      fullName: "Ahmed Benali",
-      phone: "0661234567",
-      email: "ahmed.benali@gmail.com",
-      city: "Casablanca",
-      brandName: "ShopMaroc Pro",
-      bankName: null,
-      ribNumber: null,
-      paymentMethod: null,
-    });
-    return;
-  }
-
-  res.json(rows[0]);
+router.get("/profile", (req, res): void => {
+  res.json(store.profile);
 });
 
-router.patch("/profile", async (req, res): Promise<void> => {
+router.patch("/profile", (req, res): void => {
   const parsed = UpdateProfileBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  const rows = await db.select().from(profileTable);
+  store.profile = {
+    ...store.profile,
+    fullName: parsed.data.fullName ?? store.profile.fullName,
+    phone: parsed.data.phone ?? store.profile.phone,
+    email: parsed.data.email ?? store.profile.email,
+    city: parsed.data.city ?? store.profile.city,
+    brandName: parsed.data.brandName ?? store.profile.brandName,
+    bankName: parsed.data.bankName ?? store.profile.bankName,
+    ribNumber: parsed.data.ribNumber ?? store.profile.ribNumber,
+    paymentMethod: parsed.data.paymentMethod ?? store.profile.paymentMethod,
+  };
 
-  if (rows.length === 0) {
-    const [created] = await db
-      .insert(profileTable)
-      .values({
-        fullName: parsed.data.fullName ?? "Ahmed Benali",
-        phone: parsed.data.phone ?? "0661234567",
-        email: parsed.data.email ?? "ahmed@example.com",
-        city: parsed.data.city ?? "Casablanca",
-        brandName: parsed.data.brandName ?? "Ma Boutique",
-        bankName: parsed.data.bankName ?? null,
-        ribNumber: parsed.data.ribNumber ?? null,
-        paymentMethod: parsed.data.paymentMethod ?? null,
-      })
-      .returning();
-    res.json(created);
-    return;
-  }
-
-  const existing = rows[0];
-  const [updated] = await db
-    .update(profileTable)
-    .set({
-      fullName: parsed.data.fullName ?? existing.fullName,
-      phone: parsed.data.phone ?? existing.phone,
-      email: parsed.data.email ?? existing.email,
-      city: parsed.data.city ?? existing.city,
-      brandName: parsed.data.brandName ?? existing.brandName,
-      bankName: parsed.data.bankName ?? existing.bankName,
-      ribNumber: parsed.data.ribNumber ?? existing.ribNumber,
-      paymentMethod: parsed.data.paymentMethod ?? existing.paymentMethod,
-    })
-    .where(eq(profileTable.id, existing.id))
-    .returning();
-
-  res.json(updated);
+  res.json(store.profile);
 });
 
 export default router;
