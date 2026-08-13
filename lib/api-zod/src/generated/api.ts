@@ -211,7 +211,9 @@ export const ListWithdrawalsResponse = zod.array(ListWithdrawalsResponseItem)
  * @summary Request a bank withdrawal
  */
 export const RequestWithdrawalBody = zod.object({
-  "amount": zod.number()
+  "amount": zod.number(),
+  "bankName": zod.string().nullish(),
+  "ribNumber": zod.string().nullish()
 })
 
 export const RequestWithdrawalResponse = zod.object({

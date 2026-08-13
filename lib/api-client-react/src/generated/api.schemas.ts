@@ -111,6 +111,10 @@ export interface Withdrawal {
 
 export interface WithdrawalInput {
   amount: number;
+  /** @nullable */
+  bankName?: string | null;
+  /** @nullable */
+  ribNumber?: string | null;
 }
 
 export interface AnalyticsSummary {

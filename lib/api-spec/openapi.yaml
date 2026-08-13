@@ -466,6 +466,10 @@ components:
       properties:
         amount:
           type: number
+        bankName:
+          type: ["string", "null"]
+        ribNumber:
+          type: ["string", "null"]
 
     # ── Analytics ─────────────────────────────────────────
     AnalyticsSummary:
