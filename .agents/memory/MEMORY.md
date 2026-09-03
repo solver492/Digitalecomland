@@ -1,0 +1,1 @@
+- [Supabase migration access](supabase-migration-access.md) — this connection can use PostgREST but cannot execute PostgreSQL DDL
