@@ -23,6 +23,9 @@ import { AdminSuppliers } from '@/pages/admin/AdminSuppliers';
 import { AdminDeliveryAgencies } from '@/pages/admin/AdminDeliveryAgencies';
 import { AdminAffiliates } from '@/pages/admin/AdminAffiliates';
 import { AdminOrders } from '@/pages/admin/AdminOrders';
+import { AuthPage } from '@/pages/AuthPage';
+import { AuthProvider } from '@/components/AuthProvider';
+import { AdminRoute, ProtectedRoute } from '@/components/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -30,51 +33,52 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/auth" component={AuthPage} />
 
       {/* Admin Routes */}
       <Route path="/admin">
-        <AdminLayout><AdminDashboard /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/products">
-        <AdminLayout><AdminProducts /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminProducts /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/categories">
-        <AdminLayout><AdminCategories /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminCategories /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/suppliers">
-        <AdminLayout><AdminSuppliers /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminSuppliers /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/delivery-agencies">
-        <AdminLayout><AdminDeliveryAgencies /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminDeliveryAgencies /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/affiliates">
-        <AdminLayout><AdminAffiliates /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminAffiliates /></AdminLayout></AdminRoute>
       </Route>
       <Route path="/admin/orders">
-        <AdminLayout><AdminOrders /></AdminLayout>
+        <AdminRoute><AdminLayout><AdminOrders /></AdminLayout></AdminRoute>
       </Route>
 
       {/* Dashboard Routes */}
       <Route path="/dashboard">
-        <DashboardLayout><DashboardPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><DashboardPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/products">
-        <DashboardLayout><ProductsPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><ProductsPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/products/:id">
-        <DashboardLayout><ProductLandingPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><ProductLandingPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/orders">
-        <DashboardLayout><OrdersPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><OrdersPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/analytics">
-        <DashboardLayout><AnalyticsPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><AnalyticsPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/wallet">
-        <DashboardLayout><WalletPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><WalletPage /></DashboardLayout></ProtectedRoute>
       </Route>
       <Route path="/dashboard/settings">
-        <DashboardLayout><SettingsPage /></DashboardLayout>
+        <ProtectedRoute><DashboardLayout><SettingsPage /></DashboardLayout></ProtectedRoute>
       </Route>
 
       <Route component={NotFound} />
@@ -89,12 +93,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

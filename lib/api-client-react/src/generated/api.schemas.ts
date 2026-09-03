@@ -55,7 +55,7 @@ export interface Order {
 }
 
 export interface OrderInput {
-  productId: number;
+  productId: number | string;
   customerFirstName: string;
   customerLastName: string;
   customerPhone: string;
@@ -149,7 +149,7 @@ export interface DashboardStats {
 }
 
 export interface Profile {
-  id: number;
+  id: number | string;
   fullName: string;
   phone: string;
   email: string;
@@ -161,6 +161,7 @@ export interface Profile {
   ribNumber?: string | null;
   /** @nullable */
   paymentMethod?: string | null;
+  role?: 'affiliate' | 'admin';
 }
 
 export interface ProfileUpdate {

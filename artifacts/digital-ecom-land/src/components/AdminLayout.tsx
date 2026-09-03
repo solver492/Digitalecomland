@@ -6,6 +6,7 @@ import {
   ShoppingCart, ChevronRight, ChevronLeft,
   Menu, X, ShieldAlert, Factory, LogOut,
 } from "lucide-react"
+import { useAuth } from "@/components/AuthProvider"
 
 const NAV = [
   { href: "/admin",                   label: "Dashboard",        icon: LayoutDashboard },
@@ -21,6 +22,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
   const [collapsed, setCollapsed] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const { user, signOut } = useAuth()
 
   React.useEffect(() => { setMobileOpen(false) }, [location])
 
@@ -100,7 +102,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             "flex items-center gap-3 w-full px-3 py-2 rounded-md text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all",
             collapsed && !isMobile && "justify-center px-0"
           )}
-          onClick={() => { window.location.href = "/" }}
+           onClick={() => { void signOut() }}
           title={collapsed && !isMobile ? "Déconnexion" : undefined}
         >
           <LogOut className="size-4 shrink-0" />
@@ -141,8 +143,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             ADMIN
           </span>
           <div className="flex-1" />
-          <div className="size-8 rounded-full bg-red-600/20 border border-red-600/50 flex items-center justify-center text-red-500 font-bold text-xs">
-            AD
+           <div className="size-8 rounded-full bg-red-600/20 border border-red-600/50 flex items-center justify-center text-red-500 font-bold text-xs">
+             {(user?.email || "AD").slice(0, 2).toUpperCase()}
           </div>
         </header>
         <div className="flex-1 overflow-auto bg-background p-4 md:p-6">

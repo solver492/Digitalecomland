@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Environment files (keep the template only)
+.env*
+!.env.example

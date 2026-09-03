@@ -366,7 +366,9 @@ components:
         id:
           type: number
         productId:
-          type: number
+          oneOf:
+            - type: number
+            - type: string
         productName:
           type: string
         productImage:
@@ -402,7 +404,9 @@ components:
       required: [productId, customerFirstName, customerLastName, customerPhone, city, fullAddress, salePriceAffiliate]
       properties:
         productId:
-          type: number
+          oneOf:
+            - type: number
+            - type: string
         customerFirstName:
           type: string
         customerLastName:
@@ -540,7 +544,7 @@ components:
       required: [id, fullName, phone, email, city, brandName]
       properties:
         id:
-          type: number
+          type: string
         fullName:
           type: string
         phone:
@@ -557,6 +561,9 @@ components:
           type: ["string", "null"]
         paymentMethod:
           type: ["string", "null"]
+        role:
+          type: string
+          enum: [affiliate, admin]
 
     ProfileUpdate:
       type: object

@@ -72,11 +72,11 @@ export function LandingPage() {
               </div>
             )}
           </div>
-          <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:inline">
+          <Link href="/auth" className="text-sm font-medium hover:text-primary transition-colors hidden sm:inline">
             {t("landing.login")}
           </Link>
           <Button asChild className="font-semibold px-4 sm:px-6 text-sm sm:text-base shadow-[0_0_20px_rgba(229,169,60,0.3)]">
-            <Link href="/dashboard">{t("landing.startEarning")}</Link>
+            <Link href="/auth">{t("landing.startEarning")}</Link>
           </Button>
         </div>
       </header>
@@ -93,7 +93,7 @@ export function LandingPage() {
           </p>
           <div className="mt-8 sm:mt-10 z-10">
             <Button asChild size="lg" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-bold shadow-[0_0_30px_rgba(229,169,60,0.4)]">
-              <Link href="/dashboard">
+              <Link href="/auth">
                 {t("landing.accessDashboard")}
                 {isRtl ? <ArrowRight className="ms-2 size-5 rotate-180" /> : <ArrowRight className="ms-2 size-5" />}
               </Link>

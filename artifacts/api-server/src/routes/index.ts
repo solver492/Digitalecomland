@@ -7,10 +7,12 @@ import analyticsRouter from "./analytics";
 import dashboardRouter from "./dashboard";
 import profileRouter from "./profile";
 import adminRouter from "./admin";
+import { requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(requireAuth);
 router.use(productsRouter);
 router.use(ordersRouter);
 router.use(walletRouter);

@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { store } from "../lib/mem-store";
 import type { Product, Supplier, DeliveryAgency, Affiliate, Category } from "../lib/mem-store";
+import { requireAdmin } from "../middlewares/auth";
 
 const router = Router();
+router.use(requireAdmin);
 
 // ============================================================
 // ADMIN — PRODUCTS CRUD

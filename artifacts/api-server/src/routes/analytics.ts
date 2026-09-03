@@ -1,118 +1,102 @@
 import { Router } from "express";
-import { store } from "../lib/mem-store";
+import { selectRows } from "../lib/data";
+import { ownsRow, rowValue, toNumber, toStringValue, type SupabaseRow } from "../lib/supabase";
 
 const router = Router();
 
-router.get("/analytics/summary", (req, res): void => {
-  const orders = store.orders;
+async function ordersForUser(userId: string): Promise<SupabaseRow[]> {
+  return (await selectRows("orders")).filter((row) => ownsRow(row, userId));
+}
 
-  const totalDelivered = orders.filter((o) => o.status === "LIVREE").length;
-  const totalReturned = orders.filter((o) => o.status === "RETOURNEE").length;
-  const shipped = orders.filter(
-    (o) =>
-      o.status === "LIVREE" ||
-      o.status === "RETOURNEE" ||
-      o.status === "EN_COURS_LIVRAISON"
-  ).length;
-
-  const totalShipped = shipped || 1;
-  const deliveryRate = Math.round((totalDelivered / totalShipped) * 100);
-  const returnRate = Math.round((totalReturned / totalShipped) * 100);
-
-  res.json({
-    deliveryRate,
-    returnRate,
-    totalDelivered,
-    totalReturned,
-    totalShipped: shipped,
-  });
+router.get("/analytics/summary", async (req, res): Promise<void> => {
+  try {
+    const orders = await ordersForUser(req.user!.id);
+    const totalDelivered = orders.filter((row) => row.status === "LIVREE").length;
+    const totalReturned = orders.filter((row) => row.status === "RETOURNEE").length;
+    const totalShipped = orders.filter((row) =>
+      ["LIVREE", "RETOURNEE", "EN_COURS_LIVRAISON"].includes(toStringValue(row.status)),
+    ).length;
+    const denominator = totalShipped || 1;
+    res.json({
+      deliveryRate: Math.round((totalDelivered / denominator) * 100),
+      returnRate: Math.round((totalReturned / denominator) * 100),
+      totalDelivered,
+      totalReturned,
+      totalShipped,
+    });
+  } catch {
+    res.status(503).json({ error: "Analytics service unavailable" });
+  }
 });
 
-router.get("/analytics/profits-chart", (req, res): void => {
-  const orders = store.orders;
-  const now = new Date();
-  const result: Record<string, { profit: number; orders: number }> = {};
-
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().split("T")[0];
-    result[key] = { profit: 0, orders: 0 };
-  }
-
-  for (const o of orders) {
-    if (o.status === "LIVREE") {
-      const key = o.createdAt.split("T")[0];
-      if (result[key] !== undefined) {
-        result[key].profit += o.netMargin;
+router.get("/analytics/profits-chart", async (req, res): Promise<void> => {
+  try {
+    const orders = await ordersForUser(req.user!.id);
+    const now = new Date();
+    const result: Record<string, { profit: number; orders: number }> = {};
+    for (let i = 29; i >= 0; i -= 1) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      result[date.toISOString().split("T")[0]] = { profit: 0, orders: 0 };
+    }
+    for (const row of orders) {
+      if (row.status !== "LIVREE") continue;
+      const key = toStringValue(rowValue(row, "created_at", "date")).split("T")[0];
+      if (result[key]) {
+        result[key].profit += toNumber(rowValue(row, "net_margin", "profit"));
         result[key].orders += 1;
       }
     }
+    res.json(Object.entries(result).map(([date, value]) => ({
+      date,
+      profit: Math.round(value.profit),
+      orders: value.orders,
+    })));
+  } catch {
+    res.status(503).json({ error: "Analytics service unavailable" });
   }
-
-  const chart = Object.entries(result).map(([date, { profit, orders }]) => ({
-    date,
-    profit: Math.round(profit),
-    orders,
-  }));
-
-  res.json(chart);
 });
 
-router.get("/analytics/top-cities", (req, res): void => {
-  const cityMap: Record<string, { revenue: number; orders: number }> = {};
-
-  for (const o of store.orders) {
-    if (o.status === "LIVREE") {
-      if (!cityMap[o.city]) cityMap[o.city] = { revenue: 0, orders: 0 };
-      cityMap[o.city].revenue += o.netMargin;
-      cityMap[o.city].orders += 1;
+router.get("/analytics/top-cities", async (req, res): Promise<void> => {
+  try {
+    const cityMap: Record<string, { revenue: number; orders: number }> = {};
+    for (const row of await ordersForUser(req.user!.id)) {
+      if (row.status !== "LIVREE") continue;
+      const city = toStringValue(row.city, "Unknown");
+      cityMap[city] ??= { revenue: 0, orders: 0 };
+      cityMap[city].revenue += toNumber(rowValue(row, "net_margin", "profit"));
+      cityMap[city].orders += 1;
     }
+    res.json(Object.entries(cityMap)
+      .map(([city, value]) => ({ city, revenue: Math.round(value.revenue), orders: value.orders }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10));
+  } catch {
+    res.status(503).json({ error: "Analytics service unavailable" });
   }
-
-  const result = Object.entries(cityMap)
-    .map(([city, { revenue, orders }]) => ({
-      city,
-      revenue: Math.round(revenue),
-      orders,
-    }))
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 10);
-
-  res.json(result);
 });
 
-router.get("/analytics/top-products", (req, res): void => {
-  const productMap: Record<
-    number,
-    { productName: string; sales: number; revenue: number }
-  > = {};
-
-  for (const o of store.orders) {
-    if (o.status === "LIVREE") {
-      if (!productMap[o.productId]) {
-        productMap[o.productId] = {
-          productName: o.productName,
-          sales: 0,
-          revenue: 0,
-        };
-      }
-      productMap[o.productId].sales += 1;
-      productMap[o.productId].revenue += o.netMargin;
+router.get("/analytics/top-products", async (req, res): Promise<void> => {
+  try {
+    const productMap: Record<string, { productName: string; sales: number; revenue: number }> = {};
+    for (const row of await ordersForUser(req.user!.id)) {
+      if (row.status !== "LIVREE") continue;
+      const productId = String(rowValue(row, "product_id", "productId") ?? "");
+      productMap[productId] ??= {
+        productName: toStringValue(rowValue(row, "product_name", "productName")),
+        sales: 0,
+        revenue: 0,
+      };
+      productMap[productId].sales += 1;
+      productMap[productId].revenue += toNumber(rowValue(row, "net_margin", "profit"));
     }
+    res.json(Object.entries(productMap)
+      .map(([productId, value]) => ({ productId: Number(productId), ...value, revenue: Math.round(value.revenue) }))
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10));
+  } catch {
+    res.status(503).json({ error: "Analytics service unavailable" });
   }
-
-  const result = Object.entries(productMap)
-    .map(([productId, { productName, sales, revenue }]) => ({
-      productId: Number(productId),
-      productName,
-      sales,
-      revenue: Math.round(revenue),
-    }))
-    .sort((a, b) => b.sales - a.sales)
-    .slice(0, 10);
-
-  res.json(result);
 });
 
 export default router;

@@ -2,6 +2,7 @@
  * Lightweight admin API client — direct fetch calls, no orval codegen needed.
  * All calls hit /api/admin/* which are proxied by Vite to the Express backend.
  */
+import { supabase } from "./supabase";
 
 export interface AdminStats {
   totalRevenue: number;
@@ -101,9 +102,15 @@ export interface AdminProduct {
 }
 
 async function req<T>(path: string, opts?: RequestInit): Promise<T> {
+  const { data } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
+  const token = data.session?.access_token;
   const res = await fetch(path, {
-    headers: { "Content-Type": "application/json" },
     ...opts,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...opts?.headers,
+    },
   });
   if (!res.ok) {
     const err = await res.text();

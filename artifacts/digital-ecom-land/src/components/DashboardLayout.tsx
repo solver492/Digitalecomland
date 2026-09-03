@@ -6,6 +6,7 @@ import {
   Settings, LogOut, ChevronRight, ChevronLeft, Menu, X, Globe
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/components/AuthProvider"
 
 const LANGUAGES = [
   { code: "ar", label: "العربية", flag: "🇲🇦" },
@@ -16,6 +17,7 @@ const LANGUAGES = [
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
   const { t, i18n } = useTranslation()
+  const { user, signOut } = useAuth()
   const isRtl = i18n.language === "ar"
 
   // Desktop: collapsed vs expanded
@@ -131,7 +133,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             "flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all",
             collapsed && !isMobile && "justify-center px-0"
           )}
-          onClick={() => { window.location.href = '/' }}
+          onClick={() => { void signOut() }}
           title={collapsed && !isMobile ? t("nav.logout") : undefined}
         >
           <LogOut className="size-5 shrink-0" />
@@ -222,11 +224,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {/* User avatar */}
           <div className="flex items-center gap-3">
             <div className="text-end hidden sm:block">
-              <p className="text-sm font-medium text-foreground">Affiliate Partner</p>
-              <p className="text-xs text-muted-foreground">ID: #49201</p>
+               <p className="text-sm font-medium text-foreground">{user?.user_metadata?.full_name || user?.email || "Affiliate"}</p>
+               <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
             </div>
-            <div className="size-9 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold text-sm">
-              AP
+             <div className="size-9 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold text-sm">
+               {(user?.user_metadata?.full_name || user?.email || "A").slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>

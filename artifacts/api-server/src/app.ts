@@ -31,4 +31,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+app.use((_req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  res.status(500).json({ error: "Internal server error" });
+});
+
 export default app;
