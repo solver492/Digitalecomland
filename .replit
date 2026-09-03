@@ -1,3 +1,7 @@
+modules = ["web", "nodejs-20", "python-3.12", "bash"]
+
+[nix]
+channel = "stable-25_05"
 # Ce fichier est spécifique à la plateforme Replit et n'est pas utilisé
 # dans un environnement de développement local.
 #
