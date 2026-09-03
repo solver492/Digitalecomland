@@ -17,7 +17,7 @@ APP_DIR="/home/redsky/digitalecomland"
 GITHUB_REPO="https://github.com/solver492/digitalecomlando.git"
 DB_NAME="digitalecomland"
 DB_USER="digitalecomland_user"
-DB_PASS="DigitalEcom2024!Secure"
+DB_PASS="${HOSTINGER_DB_PASSWORD:?Set HOSTINGER_DB_PASSWORD in the environment}"
 SERVER_IP=$(hostname -I | awk '{print $1}')
 
 echo -e "${BLUE}[1/10]${NC} Mise à jour système..."

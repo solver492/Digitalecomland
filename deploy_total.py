@@ -5,12 +5,13 @@ Déploiement TOTAL automatique - Je prends le contrôle complet
 
 import sys
 import time
+import os
 
 SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'DAGdag737@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 class C:
@@ -134,9 +135,9 @@ try {
     # 5. Créer le fichier .env
     p_step("5/8 Configuration des variables d'environnement...")
     
-    env_content = """PORT=3001
+    env_content = f"""PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:{os.environ.get('HOSTINGER_DB_PASSWORD', '')}@localhost:5432/digitalecomland
 """
     
     exec_cmd(ssh, f"cat > {api_path}/.env << 'EOFENV'\n{env_content}\nEOFENV")

@@ -2,12 +2,13 @@
 """Diagnostic du serveur"""
 
 import sys
+import os
 
 SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'Dagdag676@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 def main():

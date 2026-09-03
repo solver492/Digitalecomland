@@ -5,10 +5,35 @@ export type SupabaseRow = Record<string, unknown>;
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+/**
+ * The API only uses Supabase Auth and PostgREST. Realtime is a browser
+ * concern, but supabase-js eagerly constructs its client in Node 20. Supply
+ * a closed transport so server startup does not require a native WebSocket.
+ */
+class DisabledWebSocket {
+  readonly CONNECTING = 0;
+  readonly OPEN = 1;
+  readonly CLOSING = 2;
+  readonly CLOSED = 3;
+  readonly readyState = this.CLOSED;
+  readonly protocol = "";
+  onopen: ((this: any, event: Event) => any) | null = null;
+  onmessage: ((this: any, event: MessageEvent) => any) | null = null;
+  onclose: ((this: any, event: CloseEvent) => any) | null = null;
+  onerror: ((this: any, event: Event) => any) | null = null;
+
+  constructor(readonly url: string, _protocols?: string | string[]) {}
+  close(): void {}
+  send(_data: string | ArrayBufferLike | Blob | ArrayBufferView): void {}
+  addEventListener(_type: string, _listener: EventListener): void {}
+  removeEventListener(_type: string, _listener: EventListener): void {}
+}
+
 export const supabaseAdmin: SupabaseClient | null =
   supabaseUrl && serviceRoleKey
     ? createClient(supabaseUrl, serviceRoleKey, {
         auth: { autoRefreshToken: false, persistSession: false },
+        realtime: { transport: DisabledWebSocket as unknown as typeof WebSocket },
       })
     : null;
 

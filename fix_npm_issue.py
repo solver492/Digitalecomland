@@ -4,12 +4,13 @@ Correction du problème pnpm - Supprime la restriction npm
 """
 
 import sys
+import os
 
 SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'DAGdag737@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 class C:

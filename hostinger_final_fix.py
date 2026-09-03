@@ -5,12 +5,13 @@ Solution finale pour Hostinger - Configure tout automatiquement
 
 import sys
 import time
+import os
 
 SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'DAGdag737@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 class C:
@@ -96,9 +97,9 @@ def fix_hostinger(ssh):
     # Créer le fichier .env
     p_step("Configuration des variables d'environnement...")
     
-    env_content = """PORT=3001
+    env_content = f"""PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:{os.environ.get('HOSTINGER_DB_PASSWORD', '')}@localhost:5432/digitalecomland
 """
     
     exec_cmd(ssh, f"cat > {api_path}/.env << 'EOFENV'\n{env_content}\nEOFENV")
@@ -143,7 +144,7 @@ Port: 3001
 Variables d'environnement à ajouter dans hPanel:
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:<HOSTINGER_DB_PASSWORD>@localhost:5432/digitalecomland
 
 IMPORTANT: 
 - Utilisez "index.mjs" comme fichier d'entrée
@@ -170,7 +171,7 @@ IMPORTANT:
 cd "$(dirname "$0")"
 export PORT=3001
 export NODE_ENV=production
-export DATABASE_URL="postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland"
+export DATABASE_URL="postgresql://digitalecomland_user:${HOSTINGER_DB_PASSWORD}@localhost:5432/digitalecomland"
 
 # Vérifier que Node est disponible
 if ! command -v node &> /dev/null; then

@@ -32,3 +32,8 @@ export async function updateOne(table: string, column: string, value: string, ro
   if (error) throw error;
   return data as SupabaseRow;
 }
+
+export async function deleteOne(table: string, column: string, value: string): Promise<void> {
+  const { error } = await requireSupabase().from(table).delete().eq(column, value);
+  if (error) throw error;
+}

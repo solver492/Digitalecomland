@@ -6,13 +6,14 @@ Corrige les erreurs 403/404 de Nginx
 
 import sys
 import time
+import os
 
 # Configuration du serveur
 SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'Dagdag676@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 APP_CONFIG = {

@@ -16,14 +16,14 @@ SERVER_CONFIG = {
     'host': '147.93.54.128',
     'port': '65002',
     'user': 'u696346042',
-    'password': 'Dagdag676@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 # Configuration de l'application
 APP_CONFIG = {
     'db_name': 'digitalecomland',
     'db_user': 'digitalecomland_user',
-    'db_password': 'DigitalEcom2024!Secure',
+    'db_password': os.environ.get('HOSTINGER_DB_PASSWORD', ''),
     'api_port': '3001',
     'app_dir': '/home/u696346042/digitalecomland',
 }
@@ -351,7 +351,7 @@ def main():
         print(f"  • SSH: ssh -p {SERVER_CONFIG['port']} {SERVER_CONFIG['user']}@{SERVER_CONFIG['host']}")
         print(f"  • Base de données: {APP_CONFIG['db_name']}")
         print(f"  • Utilisateur DB: {APP_CONFIG['db_user']}")
-        print(f"  • Mot de passe DB: {APP_CONFIG['db_password']}")
+        print("  • Mot de passe DB: configured through HOSTINGER_DB_PASSWORD")
         print()
         
         print(f"{Colors.YELLOW}⚠  N'oubliez pas de changer votre mot de passe SSH !{Colors.RESET}")

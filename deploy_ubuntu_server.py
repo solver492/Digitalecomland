@@ -6,12 +6,13 @@ Avec accès root - Installation complète automatique
 
 import sys
 import time
+import os
 
 SERVER_CONFIG = {
     'host': '192.168.100.211',  # Adresse IP du serveur Ubuntu
     'port': '22',
     'user': 'redsky',
-    'password': 'Dagdag676@',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 class C:
@@ -132,12 +133,12 @@ def full_ubuntu_deploy(ssh):
     
     # 6. Création de la base de données
     p_step("6/12 Configuration de PostgreSQL...")
-    pg_commands = """
+    pg_commands = f"""
 sudo -u postgres psql << 'EOFPG'
 DROP DATABASE IF EXISTS digitalecomland;
 DROP USER IF EXISTS digitalecomland_user;
 CREATE DATABASE digitalecomland;
-CREATE USER digitalecomland_user WITH PASSWORD 'DigitalEcom2024!Secure';
+CREATE USER digitalecomland_user WITH PASSWORD '{os.environ.get('HOSTINGER_DB_PASSWORD', '')}';
 GRANT ALL PRIVILEGES ON DATABASE digitalecomland TO digitalecomland_user;
 EOFPG
 """
@@ -157,9 +158,9 @@ EOFPG
     
     # 8. Configuration de l'environnement
     p_step("8/12 Configuration des variables d'environnement...")
-    env_content = """PORT=3001
+    env_content = f"""PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:{os.environ.get('HOSTINGER_DB_PASSWORD', '')}@localhost:5432/digitalecomland
 """
     exec_cmd(ssh, f"cat > ~/digitalecomland/.env << 'EOFENV'\n{env_content}\nEOFENV")
     p_ok("Variables configurées")
@@ -259,7 +260,7 @@ DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:
     print(f"\n{C.BOLD}📝 Base de données:{C.N}")
     print(f"  Nom: digitalecomland")
     print(f"  Utilisateur: digitalecomland_user")
-    print(f"  Mot de passe: DigitalEcom2024!Secure")
+    print(f"  Mot de passe: configured through HOSTINGER_DB_PASSWORD")
     
     print(f"\n{C.Y}⚠️  Pensez à:{C.N}")
     print(f"  1. Configurer le pare-feu (ufw)")

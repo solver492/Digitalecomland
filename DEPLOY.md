@@ -37,7 +37,7 @@ Ou utilisez un client SFTP comme FileZilla :
 - Host: sftp://147.93.54.128
 - Port: 65002
 - Username: u696346042
-- Password: Dagdag676@
+- Password: configure via the Hostinger secret manager; never commit it
 
 ### 4. Installer les dépendances sur le serveur
 
@@ -115,7 +115,7 @@ sudo -u postgres psql
 
 # Créer la base de données
 CREATE DATABASE digitalecomland;
-CREATE USER digitalecomland_user WITH PASSWORD 'votre_mot_de_passe_securise';
+CREATE USER digitalecomland_user WITH PASSWORD '<HOSTINGER_DB_PASSWORD>';
 GRANT ALL PRIVILEGES ON DATABASE digitalecomland TO digitalecomland_user;
 \q
 ```
@@ -128,7 +128,7 @@ nano ~/digitalecomland/.env
 
 Mettez à jour la ligne `DATABASE_URL` avec vos informations PostgreSQL :
 ```
-DATABASE_URL=postgresql://digitalecomland_user:votre_mot_de_passe_securise@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:<HOSTINGER_DB_PASSWORD>@localhost:5432/digitalecomland
 ```
 
 ### 11. Redémarrer l'application

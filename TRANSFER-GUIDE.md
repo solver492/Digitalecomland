@@ -16,7 +16,7 @@ Ouvrez FileZilla et entrez les informations suivantes dans la barre en haut :
 
 - **Hôte** : `sftp://147.93.54.128`
 - **Nom d'utilisateur** : `u696346042`
-- **Mot de passe** : `Dagdag676@`
+- **Mot de passe** : configurez-le uniquement dans le gestionnaire de secrets
 - **Port** : `65002`
 
 Cliquez sur **Connexion rapide**
@@ -84,7 +84,7 @@ https://winscp.net/eng/download.php
 - **Hôte** : `147.93.54.128`
 - **Port** : `65002`
 - **Nom d'utilisateur** : `u696346042`
-- **Mot de passe** : `Dagdag676@`
+- **Mot de passe** : configurez-le uniquement dans le gestionnaire de secrets
 
 ### 3. Transférer les fichiers
 
@@ -164,7 +164,7 @@ sudo -u postgres psql
 
 # Dans le shell PostgreSQL :
 CREATE DATABASE digitalecomland;
-CREATE USER digitalecomland_user WITH PASSWORD 'VotreMotDePasseSecurise123!';
+CREATE USER digitalecomland_user WITH PASSWORD '<HOSTINGER_DB_PASSWORD>';
 GRANT ALL PRIVILEGES ON DATABASE digitalecomland TO digitalecomland_user;
 \q
 ```
@@ -183,7 +183,7 @@ nano .env
 
 Mettez à jour la ligne `DATABASE_URL` :
 ```
-DATABASE_URL=postgresql://digitalecomland_user:VotreMotDePasseSecurise123!@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:<HOSTINGER_DB_PASSWORD>@localhost:5432/digitalecomland
 ```
 
 Sauvegardez avec `CTRL+O`, puis `CTRL+X`

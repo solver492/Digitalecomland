@@ -1,10 +1,11 @@
-import { pgTable, text, serial, numeric, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, numeric, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
-  productId: serial("product_id").notNull(),
+  userId: uuid("user_id").notNull(),
+  productId: numeric("product_id").notNull(),
   productName: text("product_name").notNull(),
   productImage: text("product_image").notNull(),
   customerFirstName: text("customer_first_name").notNull(),

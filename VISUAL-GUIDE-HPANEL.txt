@@ -101,7 +101,7 @@
 │  ┌──────────────────┬─────────────────────────────────┐  │
 │  │ Name:            │ Value:                          │  │
 │  │ DATABASE_URL     │ postgresql://digitalecomland_..│  │
-│  │                  │ user:DigitalEcom2024!Secure@...│  │
+│  │                  │ user:<HOSTINGER_DB_PASSWORD>@...│  │
 │  └──────────────────┴─────────────────────────────────┘  │
 │                                                            │
 │                            [Create]  ◄── CLIQUEZ ICI      │

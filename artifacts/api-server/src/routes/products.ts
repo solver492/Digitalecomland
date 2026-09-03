@@ -5,7 +5,7 @@ import { rowValue, toBoolean, toId, toNumber, toStringValue, type SupabaseRow } 
 
 const router = Router();
 
-function mapProduct(row: SupabaseRow) {
+export function mapProduct(row: SupabaseRow) {
   const wholesalePrice = toNumber(rowValue(row, "wholesale_price", "purchase_price", "cost_price"));
   const suggestedPrice = toNumber(rowValue(row, "suggested_price", "sale_price", "selling_price"));
   const deliveryCost = toNumber(rowValue(row, "delivery_cost", "shipping_cost"));

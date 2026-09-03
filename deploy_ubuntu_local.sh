@@ -20,7 +20,7 @@ echo ""
 APP_DIR="/home/redsky/digitalecomland"
 DB_NAME="digitalecomland"
 DB_USER="digitalecomland_user"
-DB_PASS="DigitalEcom2024!Secure"
+DB_PASS="${HOSTINGER_DB_PASSWORD:?Set HOSTINGER_DB_PASSWORD in the environment}"
 API_PORT="3001"
 SERVER_IP=$(hostname -I | awk '{print $1}')
 

@@ -34,7 +34,7 @@ nano .env
 
 Configurez votre `DATABASE_URL` PostgreSQL :
 ```
-DATABASE_URL=postgresql://votre_user:votre_password@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://<DB_USER>:<DB_PASSWORD>@localhost:5432/digitalecomland
 ```
 
 ### 5. Exécuter le script de déploiement
@@ -77,7 +77,7 @@ sudo systemctl reload nginx
 - **Hôte**: `sftp://147.93.54.128`
 - **Port**: `65002`
 - **Nom d'utilisateur**: `u696346042`
-- **Mot de passe**: `Dagdag676@`
+- **Mot de passe**: configurez-le uniquement dans le gestionnaire de secrets
 
 ### 3. Transférer les fichiers
 

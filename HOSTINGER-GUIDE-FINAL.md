@@ -68,7 +68,7 @@ Value: production
 **Variable 3:**
 ```
 Name: DATABASE_URL
-Value: postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+Value: postgresql://digitalecomland_user:<HOSTINGER_DB_PASSWORD>@localhost:5432/digitalecomland
 ```
 
 #### ⚙️ Gestionnaire de Paquets
@@ -167,7 +167,7 @@ Si vous rencontrez des problèmes avec hPanel, vous pouvez utiliser **Railway** 
 - **Type** : PostgreSQL
 - **Nom** : digitalecomland
 - **Utilisateur** : digitalecomland_user
-- **Mot de passe** : DigitalEcom2024!Secure
+- **Mot de passe** : renseignez un secret propre à votre serveur, jamais dans Git
 
 ---
 

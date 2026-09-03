@@ -5,12 +5,13 @@ Déploiement complet automatique sur VPS Ubuntu
 
 import sys
 import time
+import os
 
 SERVER_CONFIG = {
     'host': '100.78.217.97',
     'port': '22',
     'user': 'redsky',
-    'password': 'h0m3.pass',
+    'password': os.environ.get('HOSTINGER_SSH_PASSWORD'),
 }
 
 class C:
@@ -181,7 +182,7 @@ def deploy_vps(ssh):
     sudo -u postgres psql -c "DROP DATABASE IF EXISTS digitalecomland;" 2>/dev/null || true
     sudo -u postgres psql -c "DROP USER IF EXISTS digitalecomland_user;" 2>/dev/null || true
     sudo -u postgres psql -c "CREATE DATABASE digitalecomland;"
-    sudo -u postgres psql -c "CREATE USER digitalecomland_user WITH PASSWORD 'DigitalEcom2024!Secure';"
+    sudo -u postgres psql -c "CREATE USER digitalecomland_user WITH PASSWORD '{os.environ.get('HOSTINGER_DB_PASSWORD', '')}';"
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE digitalecomland TO digitalecomland_user;"
     """
     
@@ -194,7 +195,7 @@ def deploy_vps(ssh):
     env_content = f"""PORT=3001
 NODE_ENV=production
 API_PORT=3001
-DATABASE_URL=postgresql://digitalecomland_user:DigitalEcom2024!Secure@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:{os.environ.get('HOSTINGER_DB_PASSWORD', '')}@localhost:5432/digitalecomland
 VITE_API_URL=http://{SERVER_CONFIG['host']}:3001
 """
     
@@ -298,7 +299,7 @@ VITE_API_URL=http://{SERVER_CONFIG['host']}:3001
     print(f"\n{C.BOLD}🔒 Base de données:{C.N}")
     print(f"  Nom: digitalecomland")
     print(f"  User: digitalecomland_user")
-    print(f"  Pass: DigitalEcom2024!Secure")
+    print(f"  Pass: configured through HOSTINGER_DB_PASSWORD")
     
     print(f"\n{C.Y}⚠  IMPORTANT: Changez le mot de passe SSH après le déploiement !{C.N}")
     print(f"   Commande: passwd")

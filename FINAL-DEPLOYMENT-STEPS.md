@@ -20,7 +20,7 @@
 2. **Se connecter au serveur** :
    - Hôte : `sftp://147.93.54.128`
    - Utilisateur : `u696346042`
-   - Mot de passe : `Dagdag676@`
+   - Mot de passe : renseignez-le uniquement dans le gestionnaire de secrets
    - Port : `65002`
 
 3. **Transférer l'archive** :
@@ -37,7 +37,7 @@
 - Hôte : `147.93.54.128`
 - Port : `65002`
 - Utilisateur : `u696346042`
-- Mot de passe : `Dagdag676@`
+- Mot de passe : renseignez-le uniquement dans le gestionnaire de secrets
 
 Transférez le fichier ZIP de la même manière.
 
@@ -51,7 +51,7 @@ Ouvrez PowerShell ou Windows Terminal et exécutez :
 ssh -p 65002 u696346042@147.93.54.128
 ```
 
-Entrez le mot de passe : `Dagdag676@`
+Entrez le mot de passe configuré dans le gestionnaire de secrets
 
 ---
 
@@ -124,7 +124,7 @@ Dans le shell PostgreSQL, exécutez :
 
 ```sql
 CREATE DATABASE digitalecomland;
-CREATE USER digitalecomland_user WITH PASSWORD 'MotDePasseSecurise123!';
+CREATE USER digitalecomland_user WITH PASSWORD '<HOSTINGER_DB_PASSWORD>';
 GRANT ALL PRIVILEGES ON DATABASE digitalecomland TO digitalecomland_user;
 \q
 ```
@@ -144,7 +144,7 @@ nano ~/digitalecomland/.env
 Modifiez la ligne `DATABASE_URL` avec le mot de passe que vous avez choisi :
 
 ```env
-DATABASE_URL=postgresql://digitalecomland_user:MotDePasseSecurise123!@localhost:5432/digitalecomland
+DATABASE_URL=postgresql://digitalecomland_user:<HOSTINGER_DB_PASSWORD>@localhost:5432/digitalecomland
 ```
 
 Sauvegardez avec `CTRL+O`, puis `CTRL+X`
